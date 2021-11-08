@@ -6,7 +6,6 @@ import { cors } from 'middy/middlewares'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { createTodo } from '../../businessLogic/todos'
 import { createLogger } from '../../utils/logger'
-import { createAttachmentPresignedUrl } from '../../businessLogic/todos'
 import { TodoItem } from '../../models/TodoItem'
 import { getUserId } from '../utils'
 
@@ -18,8 +17,6 @@ export const handler = middy(
     const userId = getUserId(event)
     const attachmentId = uuid.v4()
     let newItem: TodoItem
-
-    const attachmentUploadUrl = createAttachmentPresignedUrl(attachmentId)
 
     try{
       newItem = await createTodo(newTodo, attachmentId, userId)
@@ -43,8 +40,7 @@ export const handler = middy(
       'Access-Control-Allow-Credentials': true
       },
       body: JSON.stringify({
-        newItem,
-        uploadUrl: attachmentUploadUrl
+        newItem
       })
     }
   }
