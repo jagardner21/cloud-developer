@@ -4,15 +4,10 @@ import { TodoItem } from '../models/TodoItem'
 import { TodoData } from '../dataLayer/todosAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-// import * as AWS  from 'aws-sdk'
 
 const todoData = new TodoData()
 
-// export async function createAttachmentPresignedUrl(attachmentId: string){
-//     return todoData.createAttachmentPresignedUrl(attachmentId)
-// }
-
-export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
+export async function getUserTodos(userId: string): Promise<TodoItem[]> {
   return await todoData.getTodosForUser(userId)
 }
 
@@ -33,11 +28,9 @@ export async function updateTodo(
 }
 
 export async function createTodo(
-  createTodoRequest: CreateTodoRequest, attachmentId: string,
+  createTodoRequest: CreateTodoRequest,
   userId: string
 ): Promise<TodoItem> {
-     
-  const bucketName = process.env.ATTACHMENT_S3_BUCKET
 
   return await todoData.createTodo({
     userId: userId,
@@ -45,7 +38,6 @@ export async function createTodo(
     createdAt: new Date().toISOString(),
     name: createTodoRequest.name,
     dueDate: createTodoRequest.dueDate,
-    done: false,
-    attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${attachmentId}`
+    done: false
   })
 }

@@ -1,3 +1,4 @@
+
 import 'source-map-support/register'
 
 import * as middy from 'middy'
@@ -15,15 +16,23 @@ const s3 = new XAWS.S3({
 })
 
 const logger = createLogger('generateUploadUrl')
-const bucket = process.env.TODOS_S3_BUCKET
+const bucket = process.env.ATTACHMENT_S3_BUCKET
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
 
+    // check for missing todo id
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({error: 'todoId was not provided'})
+      }
+    }
+
     const signedUrl = s3.getSignedUrl('putObject', {
       Bucket: bucket,
-      Key: todoId,
+      Key: `${todoId}.png`,
       Expires: 300
     })
     logger.info(`Generated signed url for a TODO`, {

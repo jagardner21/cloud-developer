@@ -7,6 +7,7 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 
 function createDynamoDBClient() {
   if (process.env.IS_OFFLINE) {
+    console.log('Creating a local DynamoDB instance')
     return new AWS.DynamoDB.DocumentClient({
       region: 'localhost',
       endpoint: 'http://localhost:8000'
@@ -22,17 +23,6 @@ export class TodoData {
     private readonly todosTableIndex = process.env.USER_ID_INDEX
   ) {
   }
-
-  // async createAttachmentPresignedUrl(attachmentId: string){
-  //   const s3 = new AWS.S3({
-  //       signatureVersion: "v4"
-  //   })
-  //   return s3.getSignedUrl('putObject', {
-  //       Bucket: process.env.ATTACHMENT_S3_BUCKET,
-  //       Key: attachmentId,
-  //       Expires: 300
-  //     })
-  // }
 
   async getTodo(userId: string, todoId: string): Promise<TodoItem> {
     const result = await this.dynamoDBClient.get({
