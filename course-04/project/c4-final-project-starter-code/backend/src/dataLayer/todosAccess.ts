@@ -118,4 +118,23 @@ export class TodoData {
     }
     return success
   }
+
+//   async generateUploadUrl(todoId: string, userId: string): Promise<string> {
+//     const uploadUrl = this.S3.getSignedUrl("putObject", {
+//       Bucket: this.bucket,
+//       Key: todoId,
+//       Expires: this.urlExp
+//   });
+//   await this.docClient.update({
+//         TableName: this.todosTable,
+//         Key: { userId, todoId },
+//         UpdateExpression: "set attachmentUrl=:URL",
+//         ExpressionAttributeValues: {
+//           ":URL": uploadUrl.split("?")[0]
+//       },
+//       ReturnValues: "UPDATED_NEW"
+//     })
+//     .promise();
+//   return uploadUrl;
+// }
 }

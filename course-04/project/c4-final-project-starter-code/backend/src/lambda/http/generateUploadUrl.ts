@@ -1,4 +1,3 @@
-
 import 'source-map-support/register'
 
 import * as middy from 'middy'
