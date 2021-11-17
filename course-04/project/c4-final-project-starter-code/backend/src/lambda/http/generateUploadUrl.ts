@@ -2,24 +2,18 @@ import 'source-map-support/register'
 
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { createLogger } from '../../utils/logger'
-
-const XAWS = AWSXRay.captureAWS(AWS)
-
-const s3 = new XAWS.S3({
-  signatureVersion: 'v4'
-})
+import { generateUploadUrl } from '../../businessLogic/todos'
+import { getUserId } from '../utils'
 
 const logger = createLogger('generateUploadUrl')
-const bucket = process.env.ATTACHMENT_S3_BUCKET
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
+    const userId: string = getUserId(event)
 
     // check for missing todo id
     if (!todoId) {
@@ -29,11 +23,8 @@ export const handler = middy(
       }
     }
 
-    const signedUrl = s3.getSignedUrl('putObject', {
-      Bucket: bucket,
-      Key: `${todoId}.png`,
-      Expires: 300
-    })
+    const signedUrl = await generateUploadUrl(todoId, userId)
+
     logger.info(`Generated signed url for a TODO`, {
       url: signedUrl,
       todoId: todoId

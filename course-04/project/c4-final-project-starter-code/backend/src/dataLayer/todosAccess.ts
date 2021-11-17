@@ -19,8 +19,10 @@ function createDynamoDBClient() {
 export class TodoData {
   constructor(
     private readonly dynamoDBClient: DocumentClient = createDynamoDBClient(),
+    private readonly S3 = new AWS.S3({signatureVersion: 'v4'}),
     private readonly todosTable = process.env.TODOS_TABLE,
-    private readonly todosTableIndex = process.env.USER_ID_INDEX
+    private readonly todosTableIndex = process.env.USER_ID_INDEX,
+    private readonly bucket = process.env.ATTACHMENT_S3_BUCKET
   ) {
   }
 
@@ -119,22 +121,22 @@ export class TodoData {
     return success
   }
 
-//   async generateUploadUrl(todoId: string, userId: string): Promise<string> {
-//     const uploadUrl = this.S3.getSignedUrl("putObject", {
-//       Bucket: this.bucket,
-//       Key: todoId,
-//       Expires: this.urlExp
-//   });
-//   await this.docClient.update({
-//         TableName: this.todosTable,
-//         Key: { userId, todoId },
-//         UpdateExpression: "set attachmentUrl=:URL",
-//         ExpressionAttributeValues: {
-//           ":URL": uploadUrl.split("?")[0]
-//       },
-//       ReturnValues: "UPDATED_NEW"
-//     })
-//     .promise();
-//   return uploadUrl;
-// }
+  async generateUploadUrl(todoId: string, userId: string): Promise<string> {
+    const uploadUrl = this.S3.getSignedUrl("putObject", {
+      Bucket: this.bucket,
+      Key: todoId,
+      Expires: 300
+  });
+  await this.dynamoDBClient.update({
+        TableName: this.todosTable,
+        Key: { userId, todoId },
+        UpdateExpression: "set attachmentUrl=:URL",
+        ExpressionAttributeValues: {
+          ":URL": uploadUrl.split("?")[0]
+      },
+      ReturnValues: "UPDATED_NEW"
+    })
+    .promise();
+  return uploadUrl;
+}
 }

@@ -41,3 +41,7 @@ export async function createTodo(
     done: false
   })
 }
+
+export async function generateUploadUrl(todoId: string, userId: string): Promise<string>{
+  return await todoData.generateUploadUrl(todoId, userId)
+}
