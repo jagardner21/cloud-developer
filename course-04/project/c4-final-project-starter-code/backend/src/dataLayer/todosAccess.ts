@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk'
+const XAWS = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 const logger = createLogger('dataLayer')
@@ -8,18 +8,18 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 function createDynamoDBClient() {
   if (process.env.IS_OFFLINE) {
     console.log('Creating a local DynamoDB instance')
-    return new AWS.DynamoDB.DocumentClient({
+    return new XAWS.DynamoDB.DocumentClient({
       region: 'localhost',
       endpoint: 'http://localhost:8000'
     })
   }
-  return new AWS.DynamoDB.DocumentClient()
+  return new XAWS.DynamoDB.DocumentClient()
 }
 
 export class TodoData {
   constructor(
     private readonly dynamoDBClient: DocumentClient = createDynamoDBClient(),
-    private readonly S3 = new AWS.S3({signatureVersion: 'v4'}),
+    private readonly S3 = new XAWS.S3({signatureVersion: 'v4'}),
     private readonly todosTable = process.env.TODOS_TABLE,
     private readonly todosTableIndex = process.env.USER_ID_INDEX,
     private readonly bucket = process.env.ATTACHMENT_S3_BUCKET
